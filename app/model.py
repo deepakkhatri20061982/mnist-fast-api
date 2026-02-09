@@ -2,7 +2,8 @@ import joblib
 import numpy as np
 from app.mlflow_client import (
     get_run_id_from_model_name,
-    download_model
+    download_model,
+    download_model_local
 )
 
 _loaded_models = {}
@@ -11,9 +12,10 @@ def load_model(model_name: str, stage: str):
     key = f"{model_name}:{stage}"
 
     if key not in _loaded_models:
-        run_id, source = get_run_id_from_model_name(model_name, stage)
-        model_path = download_model(run_id=run_id, source = source)
-        _loaded_models[key] = joblib.load(model_path)
+        # run_id, source = get_run_id_from_model_name(model_name, stage)
+        # model_path = download_model(run_id=run_id, source = source)
+        model_path = download_model_local(model_name)
+        _loaded_models[key] = joblib.load(model_path + "/model.pkl")
 
     return _loaded_models[key]
 
@@ -29,4 +31,4 @@ def predict_digit(model_name: str, stage: str, image: np.ndarray):
     probabilities = model.predict_proba(image)[0]
     predicted_label = int(np.argmax(probabilities))
 
-    return predicted_label, probabilities.tolist()
+    return predicted_label, probabilities

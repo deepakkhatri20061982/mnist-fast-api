@@ -5,3 +5,4 @@ pydantic
 requests
 joblib
 torch
+mlflow

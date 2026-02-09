@@ -1,8 +1,11 @@
 import requests
 import os
+import mlflow
+from mlflow.tracking import MlflowClient
 
 MLFLOW_BASE_URL = "http://host.docker.internal:5000"
 MODEL_CACHE_DIR = "model"
+DEST_PATH = "/tmp/downloaded_model"
 
 os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
 
@@ -38,3 +41,38 @@ def download_model(run_id: str, source: str, artifact_path: str = "model/model.p
         f.write(response.content)
 
     return local_model_path
+
+
+def download_model_local(model_name: str):
+    # -----------------------------
+    # Connect to MLflow
+    # -----------------------------
+    mlflow.set_tracking_uri(MLFLOW_BASE_URL)
+    client = MlflowClient()
+
+    # -----------------------------
+    # Get model version in stage
+    # -----------------------------
+    model_versions = client.get_latest_versions(
+        name=model_name
+    )
+
+    if not model_versions:
+        raise Exception(f"No model found in stage")
+
+    model_version = model_versions[0]
+    run_id = model_version.run_id
+    artifact_path = model_version.source
+
+    print(f"Downloading model version {model_version.version}")
+
+    # -----------------------------
+    # Download artifacts
+    # -----------------------------
+    local_path = mlflow.artifacts.download_artifacts(
+        artifact_uri=artifact_path,
+        dst_path=DEST_PATH
+    )
+
+    print(f"Model downloaded to: {local_path}")
+    return local_path

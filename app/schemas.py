@@ -5,6 +5,8 @@ class PredictionRequest(BaseModel):
     image: List[List[float]]  # 28x28
 
 class PredictionResponse(BaseModel):
-    run_id: str
+    model_name: str
+    stage: str
     predicted_label: int
     probabilities: List[float]
+
