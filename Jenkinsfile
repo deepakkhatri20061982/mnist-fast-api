@@ -14,7 +14,10 @@ pipeline {
         }
         stage('Build Image') {
             steps {
-                sh 'docker build -t deepakkumarkhatri/mnist-fast-api:latest .'
+                sh """
+                . venv/bin/activate
+                docker build -t deepakkumarkhatri/mnist-fast-api:latest .
+                """
             }
         }
         stage('Push Image') {
