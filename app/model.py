@@ -1,3 +1,4 @@
+import os
 import joblib
 import numpy as np
 from app.mlflow_client import (
@@ -11,11 +12,17 @@ _loaded_models = {}
 def load_model(model_name: str, stage: str):
     key = f"{model_name}:{stage}"
 
-    if key not in _loaded_models:
-        # run_id, source = get_run_id_from_model_name(model_name, stage)
-        # model_path = download_model(run_id=run_id, source = source)
-        model_path = download_model_local(model_name)
-        _loaded_models[key] = joblib.load(model_path + "/model.pkl")
+    if stage.lower() == "local":
+        # Load from project directory
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(base_path, "model", "logreg_model.pkl")
+        _loaded_models[key] = joblib.load(model_path)
+    else:
+        if key not in _loaded_models:
+            # run_id, source = get_run_id_from_model_name(model_name, stage)
+            # model_path = download_model(run_id=run_id, source = source)
+            model_path = download_model_local(model_name)
+            _loaded_models[key] = joblib.load(model_path + "/model.pkl")
 
     return _loaded_models[key]
 
