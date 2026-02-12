@@ -34,5 +34,17 @@ pipeline {
                 }
             }
         }
+        stage('Pull Image') {
+            steps {
+                sh 'docker pull deepakkumarkhatri/mnist-fast-api:latest'
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f k8s/deployment.yaml'
+                sh 'kubectl apply -f k8s/service.yaml'
+            }
+        }
     }   
 }
